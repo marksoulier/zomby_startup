@@ -1,8 +1,15 @@
+# Here, I import the pySerial library so we can communicate with Arduino
+import serial
+
 import rclpy
 from rclpy.node import Node
 
 from geometry_msgs.msg import PoseStamped, Twist
 from std_msgs.msg import String
+
+# Here, I open the serial port and reset the input buffer
+# Run "ls /dev/tty*" and see if "/dev/ttyACMX" or "/dev/ttyUSBX" is listed and enter that below
+ser = serial.Serial("/dev/ttyACM0", 9600, timeout=1)
 
 
 class MinimalSubscriber(Node):
@@ -35,14 +42,29 @@ class MinimalSubscriber(Node):
         #speed_forward is also linear velocity
         #speed_turn is also angular velocity
         #list out any packages you need to do this in the comments because I will need to add them elsewhere in the package
-        hello = "hello" #delete this line
+	ser.write(bytes(str(speed_forward), "utf-8"))
+	ser.write(b"\n")
+	ser.write(bytes(str(speed_turn), "utf-8"))
+	ser.write(b"\n")
 
+# Wait for arduino to be ready to receive serial messages
+def wait_for_arduino():
+	arduino_ready_signal = 'R'
 
+	waiting = True
 
+	#print("Waiting...")
 
-
-
-
+	# waits for the arduino to send a character indicating that it's ready to transmit data
+	while waiting:
+	    if ser.in_waiting > 0:
+		char = ser.read(1).decode('utf-8')
+		if char == arduino_ready_signal:
+		    #print("Arduino is ready.")
+		    waiting = False
+		    
+	#print("Done waiting.")
+	
 
 def main(args=None):
     rclpy.init(args=args)
@@ -59,4 +81,7 @@ def main(args=None):
 
 
 if __name__ == '__main__':
+    ser.reset_input_buffer()
+    wait_for_arduino()
+    
     main()
