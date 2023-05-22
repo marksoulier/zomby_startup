@@ -33,7 +33,6 @@ class MinimalSubscriber(Node):
         self.send_speed_to_arduino(speed_forward, speed_turn)
 
 
-
     def send_speed_to_arduino(self, speed_forward, speed_turn):
 
         ########################################ENTER YOUR CODE HERE#############################################
@@ -66,10 +65,11 @@ class MinimalSubscriber(Node):
 
 def main(args=None):
     rclpy.init(args=args)
+
     # Here, I open the serial port and reset the input buffer
     # Run "ls /dev/tty*" and see if "/dev/ttyACMX" or "/dev/ttyUSBX" is listed and enter that below
     ser = serial.Serial("/dev/ttyACM0", 9600, timeout=1)
-    
+
     ser.reset_input_buffer()
     minimal_subscriber = MinimalSubscriber(ser)
 
