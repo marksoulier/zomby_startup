@@ -53,10 +53,10 @@ class MinimalSubscriber(Node):
         arduino_ready_signal = 'R'
 
         # waits for the arduino to send a character indicating that it's ready to transmit data
+        print("Waiting for arduino...")
         while (self.waiting):
             if self.ser.in_waiting > 0:
                 char = self.ser.read(1).decode('utf-8')
-                print("Waiting...")
                 if char == arduino_ready_signal:
                     print("Arduino is ready.")
                     self.waiting = False
@@ -69,10 +69,14 @@ def main(args=None):
     # Here, I open the serial port and reset the input buffer
     # Run "ls /dev/tty*" and see if "/dev/ttyACMX" or "/dev/ttyUSBX" is listed and enter that below
     ser = serial.Serial("/dev/ttyACM0", 9600, timeout=1)
+    print("Starting up serial monitor...")
 
     ser.reset_input_buffer()
+
+    print("Starting up ROS2 node...")
     minimal_subscriber = MinimalSubscriber(ser)
 
+    print("startup node running")
     rclpy.spin(minimal_subscriber)
 
     # Destroy the node explicitly
