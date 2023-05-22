@@ -38,5 +38,3 @@ To control the zomby robot with a keyboard, open a new terminal and run the foll
 ```
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
-
-
