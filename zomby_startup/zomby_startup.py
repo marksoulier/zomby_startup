@@ -29,7 +29,7 @@ class MinimalSubscriber(Node):
 
         speed_forward = msg.linear.x
         speed_turn = msg.angular.z
-        self.wait_for_arduino()
+        #self.wait_for_arduino()
         self.send_speed_to_arduino(speed_forward, speed_turn)
 
 
@@ -41,6 +41,10 @@ class MinimalSubscriber(Node):
         #speed_forward is also linear velocity
         #speed_turn is also angular velocity
         #list out any packages you need to do this in the comments because I will need to add them elsewhere in the package
+
+        speed_forward = 10
+        speed_turn = 1
+        self.waiting = False
         
         if(self.waiting == False):
             self.ser.write(bytes(str(speed_forward), "utf-8"))
