@@ -10,6 +10,8 @@
 SoftwareSerial serial(18,19);	
 RoboClaw roboclaw(&serial,10000);
 
+//This is a test. I don't belong here hehe
+
 // Addresses (in hexadecimal) of each of the 4 motor controllers
 #define left_front 0x81
 #define right_front 0x82
