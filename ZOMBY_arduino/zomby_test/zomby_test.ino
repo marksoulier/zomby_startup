@@ -21,7 +21,7 @@ void setup() {
 }
 
 /******************************************************************************
-NOIE: To run a motor forward at a certain speed, use the following command:
+NOTE: To run a motor forward at a certain speed, use the following command:
 
 roboclaw.ForwardM1(address of motor, speed from 0 to 127);
 

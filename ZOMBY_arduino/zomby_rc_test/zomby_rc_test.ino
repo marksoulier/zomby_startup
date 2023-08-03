@@ -1,4 +1,7 @@
 #include <RC_Receiver.h>
+// Includes required to use Roboclaw library
+#include <SoftwareSerial.h>
+#include "RoboClaw.h"
 
 RC_Receiver receiver(13,11,9,7,5);
 /* Ch1: 13
@@ -13,17 +16,16 @@ RC_Receiver receiver(13,11,9,7,5);
 //Invert the min and max val to reverse
 int minMax[5][2] = { 
 // Min   Max
-	{1088,1880},  // Ch1: Throttle
-	{1088,1873},  // Ch2: Elevator
-	{1085,1871},  // Ch3: Aileron (Max to the left and min to the right)
-	{1090,1875},  // Ch4: Rudder (Max to the left and min to the right)
+	{1066,1897},  // Ch1: Rudder
+	{1068,1904},  // Ch2: Throttle
+	{1062,1904},  // Ch3: Elevator
+	{1063,1900},  // Aileron (Max to the left and min to the right)
   {1080, 1880}  // Ch5: Gear Channel (kill switch) (0 = 1880) (1 = 1080)
                 // Ch6: Aux channel (0 = 1880) (1/2 = 1480) (1 = 1080)
+               
 };
 
-// Includes required to use Roboclaw library
-#include <SoftwareSerial.h>
-#include "RoboClaw.h"
+
 
 // See limitations of Arduino SoftwareSerial
 // Rx pin: 0
@@ -40,6 +42,7 @@ RoboClaw roboclaw(&serial,10000);
 void setup() {
   // Open roboclaw serial ports
   // This is the baud rate of the motor controllers, so it must be used
+  // Serial.begin(9600);
   roboclaw.begin(115200);
 
   // Set min and max values for receiver channels
@@ -74,9 +77,15 @@ int final_speed_left;
 
 void loop() {
 
-  speed = map(receiver.getMap(2), 0, 100, 0, 128);
-  difference = map(receiver.getMap(3), 0, 100, -40, 40);
-
+  speed = map(receiver.getMap(3), 0, 100, 0, 128);
+  difference = map(receiver.getMap(1), 0, 100, -40, 40);
+  // Serial.print("speed:");
+  // Serial.println(speed);
+  // Serial.print("d:");
+  // Serial.println(difference);
+  // Serial.print("map:");
+  // Serial.println(receiver.getMap(0));
+  // Serial.println(receiver.getMap(3));
   // Create dead zone in the middle of the stick so the robot will stop moving
   // when stick is in the middle
   if (speed >= 62 && speed <= 66)
@@ -88,8 +97,8 @@ void loop() {
     difference = 0;
   }
 
-  final_speed_left = speed - difference;
-  final_speed_right = speed + difference;
+  final_speed_right = speed - difference;
+  final_speed_left = speed + difference;
 
   roboclaw.ForwardBackwardM1(left_front,  final_speed_left);
   roboclaw.ForwardBackwardM1(right_front, final_speed_right);
