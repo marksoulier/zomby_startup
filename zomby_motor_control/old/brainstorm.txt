@@ -1,0 +1,14 @@
+How do I want to control motor speed from computer end?
+
+I send a command like: motor_right.setSpeed()
+It will set the motor speed to that value, and the arduino will latch onto it and run the motors at that speed until it receives a new command
+
+I could also send a command like: motor_right.slew(True)
+This starts a daemon thread that runs parallel to the main program. Whenever you call motor_right.setSpeed(),
+    it sets the desired speed to that value and slowly accelerates to it.
+
+You can turn it off with motor_right.slew(False)
+
+
+I found out that I can only control one motor at a time because the two motor slew
+threads running at the same time sent jumbled information to the arduino.

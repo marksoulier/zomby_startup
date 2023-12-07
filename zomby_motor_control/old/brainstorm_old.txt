@@ -1,0 +1,160 @@
+Computer code:
+1. import serial library
+2. begin serial communication with Arduino
+3. wait for arduino to indicate that it's ready
+4. send continuous stream of motor commands to make the motors spin up slowly and spin down
+slowly.
+
+Maybe what I could do is start 2 threads: one for right and one for left side motors.
+Each thread sends motor speed info every 10ms.
+It sends whatever the motor_speed attribute is. To change the motor speed in the program,
+all you need to do is change the motor_speed attribute. The threads will then start sending
+that new value every 10 ms.
+
+The reason I want to do this is for the Arduino end. If the arduino stops receiving the stream
+of motor speed info, it will set the desired speed to 0 and the motors will spin down.
+
+Actually I think it would be better to do 1 thread that updates both motor speeds at the same time. That way, I can ensure
+that the computer is sending the right and left motor speeds one right after the other. Then, in my Arduino code, I can 
+wait for 4 bytes to appear in the input buffer and update both desired motor speeds at the same time.
+
+Arduino code:
+
+void loop () {
+
+    Get RC switch value;
+
+    If (switch == on)
+        // RC Logic
+
+    Else {
+
+        if there are 2 bytes in input buffer
+            desired = serial message;
+        else
+            desired = 0;
+
+        If (speed < desired)
+            speed ++;
+        Else If (speed > desired)
+            speed --;
+        write motors to speed;
+        Delay 10 ms;
+
+    }
+
+}
+
+Another even better idea for computer_control function:
+
+void loop runs every milisecond
+We have counters that count how many times we've looped
+Every 1 ms, we check for serial input
+    If we received serial input, update desired speed
+    If we didn't, increment a counter. If we made it 1000 ticks (1 second),
+        then set our desired speed to stopped b/c we timed out
+Every 10 ms, we increment our actual speed towards our desired speed
+
+
+Another idea for computer_control function in Arduino code:
+
+Actually, this may not work as it is currently
+
+void computer_control() {
+
+    byte id, desired_speed;
+    byte desired_speed_left, desired_speed_right;
+    static byte actual_speed_left = 64;
+    static byte actual_speed_right = 64;
+
+    bool timeout = false;
+
+    int counter = 0;
+
+    // Wait for at least 4 bytes to appear in input buffer
+    while (Serial.available() < 4 || timeout == true) {
+
+        counter ++;
+
+        // If 1 second passed, set timeout to true
+        if (counter == 1000) {
+
+            timeout = true;
+
+        }
+
+        delay(1 ms);
+
+    }
+
+    // If we timed out, stop motors
+    if (timeout = true) {
+
+        desired_speed_left = 64;
+        desired_speed_right = 64;
+
+    }
+
+    // Else, update desired motor speeds with new input
+    else {
+
+        // Loop two times
+        for (int i = 0; i < 2; i++) {
+
+            // Read two bytes. First is motor ID and second is speed
+            id = Serial.read();
+            desired_speed = Serial.read();
+
+            // If received speed is for the right motor
+            if (id == 'r') {
+
+                desired_speed_right = desired_speed;
+
+            }
+
+            // If received speed is for the left motor
+            else if (id == 'l') {
+
+                desired_speed_left = desired_speed;
+
+            }
+
+        }
+
+    }
+
+    // Increment actual speed towards desired speed
+    // 1 tick every x amount of miliseconds
+    if (actual_speed_left < desired_speed_left) {
+
+        actual_speed_left++;
+
+    }
+    else if (actual_speed_left > desired_speed_left) {
+
+        actual_speed_left--;
+
+    }
+    if (actual_speed_right < desired_speed_right) {
+
+        actual_speed_right++;
+
+    }
+    else if (actual_speed_right > desired_speed_right) {
+
+        actual_speed_right--;
+
+    }
+
+    // Set left motor speeds
+    roboclaw.ForwardBackwardM1(left_front,  actual_speed_left);
+    roboclaw.ForwardBackwardM1(left_rear,   actual_speed_left);
+
+    // Set right motor speeds
+    roboclaw.ForwardBackwardM1(right_front, actual_speed_right);
+    roboclaw.ForwardBackwardM1(right_rear,  actual_speed_right);
+    
+    // Motor slew delay
+    delay(motor_slew_delay);
+
+}
