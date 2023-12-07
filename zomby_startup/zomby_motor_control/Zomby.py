@@ -148,6 +148,21 @@ class Zomby:
         self.__desired_speed_left = 64
         self.__desired_speed_right = 64
 
+
+    def setSpeed(self, right_speed, left_speed):
+        if right_speed > 128:
+            right_speed = 128
+        elif right_speed < 0:
+            right_speed = 0
+
+        if left_speed > 128:
+            left_speed = 128
+        elif left_speed < 0:
+            left_speed = 0
+        
+        self.__desired_speed_left = left_speed
+        self.__desired_speed_right = right_speed
+
     
     # currently can't be undone when called
     def stopMotorControl(self):
