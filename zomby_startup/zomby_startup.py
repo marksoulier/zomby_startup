@@ -49,19 +49,30 @@ class MinimalSubscriber(Node):
         #speed_turn is also angular velocity
         #list out any packages you need to do this in the comments because I will need to add them elsewhere in the package
         
-        #radias of the wheel
-        r = 
+        # Radius of the wheel
+        r =  0.2
 
-        #distance between wheels
-        L = 
+        # Distance between wheels
+        L =  0.6
 
-        M = np.array[[r/2, r/2],[r/L, -r/L]]
+        # Control vector [velocity, omega]
+        control = np.array([velocity, omega])
 
-        
+        # Matrix M
+        M = np.array([[r/2, r/2], [r/L, -r/L]])
 
+        # Calculate the inverse of M
+        M_inv = np.linalg.inv(M)
 
-        self.Zomby.setSpeed()
+        # Calculate the wheel speeds
+        wheel_speeds = np.dot(M_inv, control)
 
+        # Extract the right and left wheel speeds
+        speed_right = wheel_speeds[0]
+        speed_left = wheel_speeds[1]
+
+        # Now, you can set the calculated speeds to your robot
+        self.Zomby.setSpeed(speed_right, speed_left)
     
 	
 
