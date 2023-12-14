@@ -7,23 +7,24 @@ import numpy as np
 from geometry_msgs.msg import PoseStamped, Twist
 from std_msgs.msg import String
 
-from zomby_motor_control.Zomby import Zomby
+from zomby_startup.zomby_motor_control.Zomby import Zomby
 
 class MinimalSubscriber(Node):
 
     def __init__(self):
-        super().__init__('robot controller')
+        super().__init__('robot_controller')
 
         self.cmd_vel_sub = self.create_subscription(
             Twist,
             '/cmd_vel',
             self.listener_callback,
             10)
-        
 
         self.cmd_vel_sub  # prevent unused variable warning
 
-        self.Zomby = Zomby.Zomby("COM9", 9600)
+        #get which port the arduino is connected to by typing in
+        #
+        self.Zomby = Zomby("COM9", 9600)
         self.Zomby.forward(50)
         
 
@@ -71,8 +72,11 @@ class MinimalSubscriber(Node):
         speed_right = wheel_speeds[0]
         speed_left = wheel_speeds[1]
 
+        
+
+        self.get_logger().info(f'Sending {speed_right}, {speed_left}')
         # Now, you can set the calculated speeds to your robot
-        self.Zomby.setSpeed(speed_right, speed_left)
+        # self.Zomby.setSpeed(speed_right, speed_left)
     
 	
 
